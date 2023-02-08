@@ -1,8 +1,10 @@
 import spotipy
+import spotipy_random
 import json
 import requests
 import os
-import subprocess
+import random
+import string
 
 import basic_pitch
 import miditok
@@ -22,22 +24,38 @@ def main():
     token = spotipy.util.prompt_for_user_token(username)
     spotify = spotipy.Spotify(auth=token)
 
-    track = spotify.track(input("URI: "))
-    print(json.dumps(track, sort_keys=True, indent=4))
+    samples = 0
+    while samples < 10000:
+        track = spotipy_random.get_random(spotify=spotify, type="track")
+        if (not track["explicit"]) and get_preview_from_track(track):
+            print(samples)
+            samples += 1
+
+    # print(json.dumps(spotify.category_playlists("toplists"), sort_keys=True, indent=4))
+
+
+
+def get_preview_from_track(track):
 
     try:
         url = track["preview_url"]
     except:
-        print("No preview found.")
-        url = ""
+        return False
 
-    if url:
-        web_file = requests.get(url, allow_redirects=True)
-        name = str(track["popularity"]) + "_" + track["name"].replace(" ", "_") + ".mp3"
-        with open(os.path.join("Tracks", name), 'wb') as local_file:
-            local_file.write(web_file.content)
+    web_file = requests.get(url, allow_redirects=True)
+    name = str(track["popularity"]) + "_" + track["name"].replace(" ", "_") + ".mp3"
+
+    existing = os.listdir("Tracks")
+    if name in existing:
+        return False
+
+    print(name)
+    with open(os.path.join("Tracks", name), 'wb') as local_file:
+        local_file.write(web_file.content)
+
+    return True
+
 
 if __name__ == "__main__":
 
-    while True:
         main()
