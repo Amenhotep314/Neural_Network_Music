@@ -7,7 +7,7 @@ import random
 import string
 
 import basic_pitch
-import miditok
+# import miditok
 
 
 with open("spotify.cfg") as credentials:
@@ -24,15 +24,20 @@ def main():
     token = spotipy.util.prompt_for_user_token(username)
     spotify = spotipy.Spotify(auth=token)
 
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+
     samples = 0
-    while samples < 10000:
-        track = spotipy_random.get_random(spotify=spotify, type="track")
-        if (not track["explicit"]) and get_preview_from_track(track):
-            print(samples)
-            samples += 1
-
-    # print(json.dumps(spotify.category_playlists("toplists"), sort_keys=True, indent=4))
-
+    for letter in alphabet:
+        for query in [f"%{letter}", f"{letter}%", f"%{letter}%"]:
+            for i in range(20):
+                search = spotify.search(query, limit=50, offset=i*50)
+                if len(search["tracks"]["items"]) == 0:
+                    continue
+                for j in range(1):
+                    track = search["tracks"]["items"][random.randint(0, len(search["tracks"]["items"])-1)]
+                    if (not track["explicit"]) and get_preview_from_track(track):
+                        print(samples)
+                        samples += 1
 
 
 def get_preview_from_track(track):
@@ -42,14 +47,22 @@ def get_preview_from_track(track):
     except:
         return False
 
-    web_file = requests.get(url, allow_redirects=True)
-    name = str(track["popularity"]) + "_" + track["name"].replace(" ", "_") + ".mp3"
-
-    existing = os.listdir("Tracks")
-    if name in existing:
+    if track["explicit"] or track["popularity"] == 0:
         return False
 
+    name = track["name"]
+    name = name.replace(" ", "_")
+    name = name.replace("/", "_")
+    name = name.replace(":", "_")
+    name = str(track["popularity"]) + "_" + name + ".mp3"
+
+    existing = os.listdir("Tracks")
+    if track["name"] in existing:
+        return False
     print(name)
+
+    web_file = requests.get(url, allow_redirects=True)
+
     with open(os.path.join("Tracks", name), 'wb') as local_file:
         local_file.write(web_file.content)
 
