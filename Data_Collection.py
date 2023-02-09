@@ -31,14 +31,18 @@ def main():
         for query in [f"%{letter}", f"{letter}%", f"%{letter}%"]:
             for i in range(20):
                 search = spotify.search(query, limit=50, offset=i*50)
-                if len(search["tracks"]["items"]) == 0:
+                if len(search["tracks"]["items"]) != 50:
                     continue
-                for j in range(1):
+                for j in range(8):
                     track = search["tracks"]["items"][random.randint(0, len(search["tracks"]["items"])-1)]
                     if (not track["explicit"]) and get_preview_from_track(track):
                         print(samples)
                         samples += 1
+                    else:
+                        j -= 1
 
+        token = spotipy.util.prompt_for_user_token(username)
+        spotify = spotipy.Spotify(auth=token)
 
 def get_preview_from_track(track):
 
@@ -57,7 +61,7 @@ def get_preview_from_track(track):
     name = str(track["popularity"]) + "_" + name + ".mp3"
 
     existing = os.listdir("Tracks")
-    if track["name"] in existing:
+    if name in existing:
         return False
     print(name)
 
