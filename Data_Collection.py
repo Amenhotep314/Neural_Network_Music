@@ -2,7 +2,7 @@ import spotipy
 import requests
 import os
 
-import basic_pitch
+from basic_pitch import inference
 import tensorflow
 
 
@@ -17,8 +17,9 @@ folder_names = {
 
 def main():
 
-    download_mp3s()
+    # download_mp3s()
     # convert_mp3s_to_midis()
+    convert_midis_to_tokens()
 
 
 def download_mp3s():
@@ -41,6 +42,8 @@ def download_mp3s():
 
     alphabet = "abcdefghijklmnopqrstuvwxyz"
 
+    print("Downloading MP3s.")
+    print("\t".join(["#", "Popularity", "Title"]))
     # Loops through songs, trying to download them
     samples = 0
     # Loop through the alphabet
@@ -56,7 +59,7 @@ def download_mp3s():
                 for j in range(50):
                     track = search["tracks"]["items"][j]
                     if get_mp3_from_title(track):
-                        print("\t".join(["#"+str(samples), track[""], query, str(i)]))
+                        print("\t".join([str(samples), str(track["popularity"]), track["name"]]))
                         samples += 1
 
         token = spotipy.util.prompt_for_user_token(username)
@@ -114,16 +117,33 @@ def create_filename_from_title(track, extension="mp3"):
     name = name.replace(" ", "_")
     name = name.replace("/", "_")
     name = name.replace(":", "_")
-    name = str(track["popularity"]) + "_" + name + extension
+    name = str(track["popularity"]) + "_" + name + "." + extension
 
     return name
 
 
 def convert_mp3s_to_midis():
 
-    """Takes downloaded """
+    """Takes downloaded mp3s and converts them to midi files using Spotify's basic_pitch process."""
 
-    pass
+    # Prepares the folder
+    create_folder("midi")
+
+    filenames = os.listdir(folder_names["mp3"])
+    paths = [os.path.join(folder_names["mp3"], filename) for filename in filenames]
+
+    print("Converting MP3s to MIDIs.")
+    inference.predict_and_save(paths, folder_names["midi"], True, False, False, False)
+
+
+def convert_midis_to_tokens():
+
+    """Takes all midi files in the data set, tokenizes them for machine learning, and saves them using pickle."""
+
+    # Prepare the folder
+    create_folder("tok")
+
+
 
 
 def create_folder(name):
