@@ -1,4 +1,6 @@
 basic-pitch==0.2.0
+matplotlib==3.7.0
 miditok==1.4.1
+numpy==1.23.5
 spotipy==2.22.1
 tensorflow==2.9.3
