@@ -1,9 +1,13 @@
-import spotipy
+"""Data_Collection.py: Contains all functionality for obtaining a data set and preparing it for use in training."""
+
 import requests
 import os
+from shutil import rmtree
+from pathlib import Path
 
+import spotipy
+import miditok
 from basic_pitch import inference
-import tensorflow
 
 
 folder_names = {
@@ -19,7 +23,8 @@ def main():
 
     # download_mp3s()
     # convert_mp3s_to_midis()
-    convert_midis_to_tokens()
+    # convert_midis_to_tokens()
+    pass
 
 
 def download_mp3s():
@@ -135,15 +140,43 @@ def convert_mp3s_to_midis():
     print("Converting MP3s to MIDIs.")
     inference.predict_and_save(paths, folder_names["midi"], True, False, False, False)
 
+    # The basic_pitch library adds the string "_basic_pitch" to the end of converted files' names. Correct this.
+    print("Renaming MIDIs.")
 
-def convert_midis_to_tokens():
+    for midi in os.listdir(folder_names["midi"]):
+        print(midi)
+        target = os.path.join(folder_names["midi"], midi)
+        new = os.path.join(folder_names["midi"], midi.replace("_basic_pitch", ""))
+        os.rename(target, new)
 
-    """Takes all midi files in the data set, tokenizes them for machine learning, and saves them using pickle."""
+
+def convert_midis_to_tokens(tokenization_method="midilike"):
+
+    """Takes all midi files in the data set, tokenizes them for machine learning, and saves them using JSON.
+    Args:
+        tokenization_method (str): The name of the MidiTok method to be used. Can be cpword, midilike (default), mumidi, octuple, remi, or structured"""
+
+    tokenization_methods = {
+        "cpword": miditok.CPWord(),
+        "midilike": miditok.MIDILike(),
+        "mumidi": miditok.MuMIDI(),
+        "octuple": miditok.Octuple(),
+        "remi": miditok.REMI(),
+        "structured": miditok.Structured()
+    }
 
     # Prepare the folder
     create_folder("tok")
 
+    tokenizer = tokenization_methods[tokenization_method]
+    midi_paths = list(Path(folder_names["midi"]).glob('**/*.mid'))
 
+    tokenizer.tokenize_midi_dataset(midi_paths, Path(folder_names["tok"] + "_tmp"))
+    tokenizer.learn_bpe(tokens_path=Path(folder_names["tok"] + "_tmp"), vocab_size=500, out_dir=Path(folder_names["tok"]), files_lim=300)
+    tokenizer.apply_bpe_to_dataset(Path(folder_names["tok"] + "_tmp"), Path(folder_names["tok"]))
+
+    rmtree(folder_names["tok"] + "_tmp")
+    os.rename(os.path.join(folder_names["tok"], "config.txt"), "miditok_config.txt")
 
 
 def create_folder(name):
