@@ -2,7 +2,8 @@
 
 import requests
 import os
-from shutil import rmtree
+import random
+import shutil
 from pathlib import Path
 
 import spotipy
@@ -24,7 +25,7 @@ def main():
     # download_mp3s()
     # convert_mp3s_to_midis()
     # convert_midis_to_tokens()
-    pass
+    # split_dataset()
 
 
 def download_mp3s():
@@ -174,13 +175,38 @@ def convert_midis_to_tokens(tokenization_method="midilike"):
     midi_paths = list(Path(folder_names["midi"]).glob('**/*.mid'))
 
     # Tokenize the data. Reduce size by combining common tokens with bpe algorithm
+    print("Tokenizing data.")
     tokenizer.tokenize_midi_dataset(midi_paths, Path(folder_names["tok"] + "_tmp"))
     tokenizer.learn_bpe(tokens_path=Path(folder_names["tok"] + "_tmp"), vocab_size=500, out_dir=Path(folder_names["tok"]), files_lim=300)
     tokenizer.apply_bpe_to_dataset(Path(folder_names["tok"] + "_tmp"), Path(folder_names["tok"]))
 
     # Sort out the files
-    rmtree(folder_names["tok"] + "_tmp")
+    shutil.rmtree(folder_names["tok"] + "_tmp")
     os.rename(os.path.join(folder_names["tok"], "config.txt"), "miditok_config.txt")
+
+
+def split_dataset(train_percentage=0.8):
+
+    """Divides the tokenized dataset into two parts, one used for training and the other for testing.
+    Args:
+        train_percentage (float): The percentage of the total dataset to be allocated for training the neural network. Default is 0.8"""
+
+    create_folder("train")
+    create_folder("test")
+
+    tokens = os.listdir(folder_names["tok"])
+    random.shuffle(tokens)
+    train_num = int(len(tokens) * train_percentage)
+    random.shuffle(tokens)
+    train_tokens = tokens[:train_num]
+    test_tokens = tokens[train_num:]
+
+    print("Splitting data set.")
+    for token in train_tokens:
+        shutil.copy(os.path.join(folder_names["tok"], token), os.path.join(folder_names["train"], token))
+
+    for token in test_tokens:
+        shutil.copy(os.path.join(folder_names["tok"], token), os.path.join(folder_names["test"], token))
 
 
 def create_folder(name):
