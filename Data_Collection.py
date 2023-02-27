@@ -156,6 +156,7 @@ def convert_midis_to_tokens(tokenization_method="midilike"):
     Args:
         tokenization_method (str): The name of the MidiTok method to be used. Can be cpword, midilike (default), mumidi, octuple, remi, or structured"""
 
+    # These are simply all of the presents offered by the library
     tokenization_methods = {
         "cpword": miditok.CPWord(),
         "midilike": miditok.MIDILike(),
@@ -168,13 +169,16 @@ def convert_midis_to_tokens(tokenization_method="midilike"):
     # Prepare the folder
     create_folder("tok")
 
+    # Select the method to use and list the paths to all the midi files
     tokenizer = tokenization_methods[tokenization_method]
     midi_paths = list(Path(folder_names["midi"]).glob('**/*.mid'))
 
+    # Tokenize the data. Reduce size by combining common tokens with bpe algorithm
     tokenizer.tokenize_midi_dataset(midi_paths, Path(folder_names["tok"] + "_tmp"))
     tokenizer.learn_bpe(tokens_path=Path(folder_names["tok"] + "_tmp"), vocab_size=500, out_dir=Path(folder_names["tok"]), files_lim=300)
     tokenizer.apply_bpe_to_dataset(Path(folder_names["tok"] + "_tmp"), Path(folder_names["tok"]))
 
+    # Sort out the files
     rmtree(folder_names["tok"] + "_tmp")
     os.rename(os.path.join(folder_names["tok"], "config.txt"), "miditok_config.txt")
 
