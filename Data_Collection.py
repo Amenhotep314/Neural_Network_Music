@@ -22,6 +22,8 @@ folder_names = {
 
 def main():
 
+    """Controls the flow of the data collection. Uncomment all to create a full dataset from scratch, or use selectively."""
+
     # download_mp3s()
     # convert_mp3s_to_midis()
     # convert_midis_to_tokens()
@@ -158,7 +160,7 @@ def convert_midis_to_tokens(tokenization_method="midilike"):
     Args:
         tokenization_method (str): The name of the MidiTok method to be used. Can be cpword, midilike (default), mumidi, octuple, remi, or structured"""
 
-    # These are simply all of the presents offered by the library
+    # These are simply all of the presets offered by the library
     tokenization_methods = {
         "cpword": miditok.CPWord(),
         "midilike": miditok.MIDILike(),

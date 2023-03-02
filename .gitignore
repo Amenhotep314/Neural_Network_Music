@@ -1,8 +1,10 @@
-*.cfg
-.cache*
-
 .DS_Store
+spotify.cfg
+.cache*
 miditok_config.txt
+
+__pycache__
 MP3s
 MIDIs
 Tokens
+Model*
