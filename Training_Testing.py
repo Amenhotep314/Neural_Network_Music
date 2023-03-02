@@ -2,6 +2,7 @@
 
 import os
 import json
+import random
 
 import tensorflow
 import numpy
@@ -13,8 +14,9 @@ def main():
 
     """Controls the operations to be completed. Uncomment all to train and test a model."""
 
-    # train_model()
-    # test_model()
+    train_model()
+    test_model()
+    test_model_individually()
     pass
 
 
@@ -22,7 +24,7 @@ def train_model():
 
     """These functions represent the historical progression of the training."""
 
-    train_data, train_labels, test_data, test_labels = load_data_set
+    train_data, train_labels, test_data, test_labels = load_data_sets()
 
     # Clean up everything behind the scenes
     tensorflow.keras.backend.clear_session()
@@ -30,21 +32,53 @@ def train_model():
 
     # Layer outline
     model = tensorflow.keras.models.Sequential([
-        tensorflow.keras.layers.Conv1D(64, 18, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
+        tensorflow.keras.layers.Conv1D(32, 8, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
         tensorflow.keras.layers.MaxPooling1D(1),
-        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
-        tensorflow.keras.layers.MaxPooling1D(1),
-        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
+        tensorflow.keras.layers.Conv1D(64, 8, activation="relu", padding="same"),
         tensorflow.keras.layers.Flatten(),
-        tensorflow.keras.layers.Dense(128, activation="relu"),
+        tensorflow.keras.layers.Dense(64, activation="relu"),
         tensorflow.keras.layers.Dropout(0.5),
         tensorflow.keras.layers.Dense(100, activation="softmax")
     ])
+
+    print("Training model.")
     print(model.summary())
 
     # Train it! And save it to a file
     model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-    history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_data=(test_data, test_labels))
+    history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
+    model.save("Model")
+
+
+def train_model__03_02_2023_1():
+
+    """Notes: This did not overfit the data set, but managed to fall off the horse the other way
+    and include no meaningful information. It only guesses 66%. Disturbingly enough, this is still
+    more accurate than the previous iteration."""
+
+    train_data, train_labels, test_data, test_labels = load_data_sets()
+
+    # Clean up everything behind the scenes
+    tensorflow.keras.backend.clear_session()
+    tensorflow.random.set_seed(0)
+
+    # Layer outline
+    model = tensorflow.keras.models.Sequential([
+        tensorflow.keras.layers.Conv1D(32, 8, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
+        tensorflow.keras.layers.MaxPooling1D(1),
+        tensorflow.keras.layers.Conv1D(64, 8, activation="relu", padding="same"),
+        tensorflow.keras.layers.Flatten(),
+        tensorflow.keras.layers.Dense(64, activation="relu"),
+        tensorflow.keras.layers.Dropout(0.5),
+        tensorflow.keras.layers.Dense(100, activation="softmax")
+    ])
+
+    print("Training model.")
+    print(model.summary())
+
+    # Train it! And save it to a file
+    model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
     model.save("Model")
 
 
@@ -73,10 +107,11 @@ def train_model__03_02_2023():
         tensorflow.keras.layers.Dropout(0.5),
         tensorflow.keras.layers.Dense(100, activation="softmax")
     ])
+
+    print("Training model.")
     print(model.summary())
 
     # Train it! And save it to a file
-    print("Training model.")
     model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_data=(test_data, test_labels))
     model.save("Model_03-02-2023")
