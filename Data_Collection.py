@@ -16,7 +16,7 @@ folder_names = {
     "midi": "MIDIs",
     "tok": "Tokens",
     "test": "Test_Data",
-    "train": "Training_Data"
+    "train": "Train_Data"
 }
 
 
@@ -26,6 +26,7 @@ def main():
     # convert_mp3s_to_midis()
     # convert_midis_to_tokens()
     # split_dataset()
+    pass
 
 
 def download_mp3s():
