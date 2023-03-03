@@ -32,11 +32,13 @@ def train_model():
 
     # Layer outline
     model = tensorflow.keras.models.Sequential([
-        tensorflow.keras.layers.Conv1D(32, 8, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
+        tensorflow.keras.layers.Conv1D(64, 18, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
         tensorflow.keras.layers.MaxPooling1D(1),
-        tensorflow.keras.layers.Conv1D(64, 8, activation="relu", padding="same"),
+        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
+        tensorflow.keras.layers.MaxPooling1D(1),
+        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
         tensorflow.keras.layers.Flatten(),
-        tensorflow.keras.layers.Dense(64, activation="relu"),
+        tensorflow.keras.layers.Dense(128, activation="relu"),
         tensorflow.keras.layers.Dropout(0.5),
         tensorflow.keras.layers.Dense(100, activation="softmax")
     ])
@@ -48,6 +50,41 @@ def train_model():
     model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
     model.save("Model")
+
+
+def train_model__03_02_2023_2():
+
+    """Notes: This model is almost identical to the first iteration, except it has different
+    validation behavior. It demonstrates a decreased tendency to overfit, but remains inaccurate.
+    The validation behavior should be explored more, the loss function should be changed to mean
+    absolute error instead of sparse categorical cross-entropy, and a larger dataset is needed."""
+
+    train_data, train_labels, test_data, test_labels = load_data_sets()
+
+    # Clean up everything behind the scenes
+    tensorflow.keras.backend.clear_session()
+    tensorflow.random.set_seed(0)
+
+    # Layer outline
+    model = tensorflow.keras.models.Sequential([
+        tensorflow.keras.layers.Conv1D(64, 18, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
+        tensorflow.keras.layers.MaxPooling1D(1),
+        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
+        tensorflow.keras.layers.MaxPooling1D(1),
+        tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
+        tensorflow.keras.layers.Flatten(),
+        tensorflow.keras.layers.Dense(128, activation="relu"),
+        tensorflow.keras.layers.Dropout(0.5),
+        tensorflow.keras.layers.Dense(100, activation="softmax")
+    ])
+
+    print("Training model.")
+    print(model.summary())
+
+    # Train it! And save it to a file
+    model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
+    model.save("Model_03-02-2023-2")
 
 
 def train_model__03_02_2023_1():
@@ -79,7 +116,7 @@ def train_model__03_02_2023_1():
     # Train it! And save it to a file
     model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
-    model.save("Model")
+    model.save("Model_03-02-2023-1")
 
 
 def train_model__03_02_2023():
