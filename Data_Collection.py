@@ -24,16 +24,16 @@ def main():
 
     """Controls the flow of the data collection. Uncomment all to create a full dataset from scratch, or use selectively."""
 
-    # download_mp3s()
-    # convert_mp3s_to_midis()
-    # convert_midis_to_tokens()
-    # split_dataset()
+    download_mp3s()
+    convert_mp3s_to_midis()
+    convert_midis_to_tokens()
+    split_dataset()
     pass
 
 
 def download_mp3s():
 
-    """Downloads 30-second MP3 files from the Spotify developer API using open-ended alphabet searches. Expect between 5000 and 6000 downloads."""
+    """Downloads 30-second MP3 files from the Spotify developer API using open-ended alphabet searches. Expect about 12000 downloads."""
 
     # Reads username (and optionally) application verification details from the spotify.cfg file that each user must create
     with open("spotify.cfg") as credentials:
@@ -49,7 +49,7 @@ def download_mp3s():
     token = spotipy.util.prompt_for_user_token(username)
     spotify = spotipy.Spotify(auth=token)
 
-    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
 
     print("Downloading MP3s.")
     print("\t".join(["#", "Popularity", "Title"]))
@@ -71,8 +71,8 @@ def download_mp3s():
                         print("\t".join([str(samples), str(track["popularity"]), track["name"]]))
                         samples += 1
 
-        token = spotipy.util.prompt_for_user_token(username)
-        spotify = spotipy.Spotify(auth=token)
+            token = spotipy.util.prompt_for_user_token(username)
+            spotify = spotipy.Spotify(auth=token)
 
 
 def get_mp3_from_title(track):
@@ -90,8 +90,8 @@ def get_mp3_from_title(track):
     except:
         return False
 
-    # It must be clean and have some popularity
-    if track["explicit"] or track["popularity"] == 0:
+    # It must have some popularity
+    if track["popularity"] == 0:
         return False
 
     # It must not already be downloaded
