@@ -32,6 +32,40 @@ def train_model():
 
     # Layer outline
     model = tensorflow.keras.models.Sequential([
+        tensorflow.keras.layers.Conv1D(100, 8, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
+        tensorflow.keras.layers.MaxPooling1D(2),
+        tensorflow.keras.layers.Conv1D(200, 8, activation="relu", padding="same"),
+        tensorflow.keras.layers.MaxPooling1D(2),
+        tensorflow.keras.layers.Conv1D(200, 8, activation="relu", padding="same"),
+        tensorflow.keras.layers.Flatten(),
+        tensorflow.keras.layers.Dense(100, activation="relu"),
+        tensorflow.keras.layers.Dropout(0.5),
+        tensorflow.keras.layers.Dense(100, activation="softmax")
+    ])
+
+    print("Training model.")
+    print(model.summary())
+
+    # Train it! And save it to a file
+    model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
+    model.save("Model")
+
+
+def train_model__03_04_2023():
+
+    """Notes: The change to the loss function was supremely ineffective. Not only does the model
+    guess only one value almost exclusively, but this value is also wrong almost all the time.
+    Repeated epochs of training cause accuracy to decrease to fractions of a percent."""
+
+    train_data, train_labels, test_data, test_labels = load_data_sets()
+
+    # Clean up everything behind the scenes
+    tensorflow.keras.backend.clear_session()
+    tensorflow.random.set_seed(0)
+
+    # Layer outline
+    model = tensorflow.keras.models.Sequential([
         tensorflow.keras.layers.Conv1D(64, 18, activation="relu", padding="same", input_shape=(numpy.shape(train_data[0])[0], 1), strides=1),
         tensorflow.keras.layers.MaxPooling1D(1),
         tensorflow.keras.layers.Conv1D(128, 18, activation="relu", padding="same"),
@@ -47,9 +81,9 @@ def train_model():
     print(model.summary())
 
     # Train it! And save it to a file
-    model.compile(optimizer="nadam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    model.compile(optimizer="nadam", loss="mean_absolute_error", metrics=["accuracy"])
     history = model.fit(train_data, train_labels, epochs=10, verbose=1, validation_split=1/5)
-    model.save("Model")
+    model.save("Model_03-04-2023")
 
 
 def train_model__03_02_2023_2():
