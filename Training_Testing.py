@@ -14,7 +14,7 @@ def main():
 
     """Controls the operations to be completed. Uncomment all to train and test a model."""
 
-    train_model()
+    # train_model()
     test_model()
     test_model_individually()
     pass
@@ -160,7 +160,7 @@ def train_model__03_02_2023():
     I need to clean up the dimensions of the input shape and maybe try a smaller model that is
     better suited to the task."""
 
-    train_data, train_labels, test_data, test_labels = load_data_set
+    train_data, train_labels, test_data, test_labels = load_data_sets()
 
     # Clean up everything behind the scenes
     tensorflow.keras.backend.clear_session()
@@ -230,17 +230,17 @@ def test_model_individually(model_name="Model", test_only=False):
     rand_accuracies = []
 
     # Try it on the training data too, to look for overfitting
+    randomized = int(round(sum(train_labels) / len(train_labels)))
+
     if not test_only:
         print("\t".join(["Actual", "Predicted", "Random", "Predicted Error", "Random Error"]))
         for i in range(len(train_data)):
             actual = train_labels[i]
             predicted = numpy.argmax(model.predict(train_data[i][numpy.newaxis], verbose=0)[0])
-            randomized = random.randint(0, 99)
             pred_accuracy = abs(predicted - actual)
             rand_accuracy = abs(randomized - actual)
 
             pred_accuracies.append(pred_accuracy)
-            rand_accuracies.append(rand_accuracy)
             print("\t".join([str(actual), str(predicted), str(randomized), str(pred_accuracy), str(rand_accuracy)]))
 
         # This is pretty simple: add up the percent errors and average them to get an idea of how often it's close
@@ -251,11 +251,12 @@ def test_model_individually(model_name="Model", test_only=False):
         rand_accuracies = []
 
     # Do this to the test data
+    randomized = int(round(sum(test_labels) / len(test_labels)))
     print("\t".join(["Actual", "Predicted", "Random", "Predicted Error", "Random Error"]))
+
     for i in range(len(test_data)):
         actual = test_labels[i]
         predicted = numpy.argmax(model.predict(test_data[i][numpy.newaxis], verbose=0)[0])
-        randomized = random.randint(0, 99)
         pred_accuracy = abs(predicted - actual)
         rand_accuracy = abs(randomized - actual)
 
