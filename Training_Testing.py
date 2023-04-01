@@ -241,6 +241,7 @@ def test_model_individually(model_name="Model", test_only=False):
             rand_accuracy = abs(randomized - actual)
 
             pred_accuracies.append(pred_accuracy)
+            rand_accuracies.append(rand_accuracies)
             print("\t".join([str(actual), str(predicted), str(randomized), str(pred_accuracy), str(rand_accuracy)]))
 
         # This is pretty simple: add up the percent errors and average them to get an idea of how often it's close
