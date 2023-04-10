@@ -3,6 +3,7 @@
 import os
 import json
 import random
+import statistics
 
 import tensorflow
 import numpy
@@ -15,7 +16,8 @@ def main():
     """Controls the operations to be completed. Uncomment all to train and test a model."""
 
     # train_model()
-    test_model()
+    summarize_data_sets()
+    # test_model()
     test_model_individually()
     pass
 
@@ -188,6 +190,26 @@ def train_model__03_02_2023():
     model.save("Model_03-02-2023")
 
 
+def summarize_data_sets():
+
+    """Provides statistical information about the training and testing data sets."""
+
+    train_data, train_labels, test_data, test_labels = load_data_sets()
+    print("Summarizing data sets.")
+
+    print("Training data:")
+    print("Length: " + str(len(train_labels)))
+    print("Mean: " + str(statistics.mean(train_labels)))
+    print("Median: " + str(statistics.median(train_labels)))
+    print("Mode: " + str(statistics.mode(train_labels)))
+
+    print("Testing data:")
+    print("Length: " + str(len(test_labels)))
+    print("Mean: " + str(statistics.mean(test_labels)))
+    print("Median: " + str(statistics.median(test_labels)))
+    print("Mode: " + str(statistics.mode(test_labels)))
+
+
 def test_model(model_name="Model", test_only=False):
 
     """Assesses the accuracy of a fitted model.
@@ -241,7 +263,7 @@ def test_model_individually(model_name="Model", test_only=False):
             rand_accuracy = abs(randomized - actual)
 
             pred_accuracies.append(pred_accuracy)
-            rand_accuracies.append(rand_accuracies)
+            rand_accuracies.append(rand_accuracy)
             print("\t".join([str(actual), str(predicted), str(randomized), str(pred_accuracy), str(rand_accuracy)]))
 
         # This is pretty simple: add up the percent errors and average them to get an idea of how often it's close
