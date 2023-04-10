@@ -2,11 +2,11 @@
 
 import os
 import json
-import random
 import statistics
 
 import tensorflow
 import numpy
+import visualkeras
 
 from Data_Collection import folder_names
 
@@ -16,9 +16,10 @@ def main():
     """Controls the operations to be completed. Uncomment all to train and test a model."""
 
     # train_model()
-    summarize_data_sets()
+    # summarize_data_sets()
     # test_model()
-    test_model_individually()
+    # test_model_individually()
+    # visualize_model()
     pass
 
 
@@ -290,6 +291,17 @@ def test_model_individually(model_name="Model", test_only=False):
     average_pred = sum(pred_accuracies) / len(pred_accuracies)
     average_rand = sum(rand_accuracies) / len(rand_accuracies)
     print("Test data performance:\nAverage predicted error: " + str(average_pred) + "\tAverage randomized error: " + str(average_rand))
+
+
+def visualize_model(model_name="Model"):
+
+    """Creates a PNG representation of the architecture of the model.
+    Args:
+        model_name (str): The name of the model to be loaded. Default is Model"""
+
+    print("Creating visual representation of model.")
+    model = tensorflow.keras.models.load_model(model_name)
+    visualkeras.layered_view(model, to_file=model_name+".png", draw_volume=False, spacing=50, legend=True)
 
 
 def load_data_sets(shape=None):

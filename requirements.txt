@@ -4,3 +4,4 @@ miditok==1.4.1
 numpy==1.23.5
 spotipy==2.22.1
 tensorflow==2.9.3
+visualkeras==0.0.2
